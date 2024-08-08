@@ -35,7 +35,7 @@ export const SocketContextProvider = ({ children }) => {
     // cleaning up socket connection when the component unmounts
 
     return () => socket && socket.close();
-  }, [socket, user?._id]);
+  }, [user?._id]);
 
   return (
     <SocketContext.Provider value={{ socket }}>
