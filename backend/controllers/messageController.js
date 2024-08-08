@@ -1,5 +1,6 @@
 import Conversation from "../models/conversationSchema.js";
 import Message from "../models/messageModel.js";
+import { getRecipientSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -38,6 +39,14 @@ export const sendMessage = async (req, res) => {
         },
       }),
     ]);
+
+    const recipientSocketId = getRecipientSocketId(recipientId);
+
+    // checking for recipientSocketId and emitting newMessage event with the newMessage to the specific socket id associated with the user
+
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {

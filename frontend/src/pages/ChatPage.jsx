@@ -20,6 +20,7 @@ import {
   selectedConversationAtom,
 } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
+import { useSocket } from "../context/SocketContext";
 
 export default function ChatPage() {
   // states
@@ -39,6 +40,7 @@ export default function ChatPage() {
   // coustomhooks
 
   const showToast = useShowToast();
+  const { socket, onlineUsers } = useSocket();
 
   // Fetch conversations on component mount
 
@@ -204,6 +206,9 @@ export default function ChatPage() {
             conversations.map((conversation) => (
               <Conversation
                 key={conversation?._id}
+                isOnline={onlineUsers.includes(
+                  conversation.participants[0]._id
+                )}
                 conversation={conversation}
               />
             ))}

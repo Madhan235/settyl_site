@@ -15,23 +15,31 @@ import useShowToast from "../hooks/useShowToast";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
+import { useSocket } from "../context/SocketContext";
 
 export default function MessageContainer() {
   // useStates
-
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
 
   // Recoil States
-
   const [selectedConversation, setSelectedConversation] = useRecoilState(
     selectedConversationAtom
   );
   const currentUser = useRecoilValue(userAtom);
 
   // coustom hooks
-
   const showToast = useShowToast();
+  const { socket } = useSocket();
+
+  //catching the newMessage event from socket server and adding it to the messages state
+
+  useEffect(() => {
+    socket.on("newMessage", (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+    return () => socket.off("newMessage");
+  }, [socket]);
 
   // Fetch messages whenever the selected conversation changes
 

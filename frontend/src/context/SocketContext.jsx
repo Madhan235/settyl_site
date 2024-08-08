@@ -18,6 +18,7 @@ export const useSocket = () => {
 export const SocketContextProvider = ({ children }) => {
   // useState
   const [socket, setSocket] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   // Recoil State
 
@@ -32,13 +33,17 @@ export const SocketContextProvider = ({ children }) => {
 
     setSocket(socket);
 
+    socket.on("getOnlineUsers", (users) => {
+      setOnlineUsers(users);
+    });
+
     // cleaning up socket connection when the component unmounts
 
     return () => socket && socket.close();
   }, [user?._id]);
 
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <SocketContext.Provider value={{ socket, onlineUsers }}>
       {children}
     </SocketContext.Provider>
   );
