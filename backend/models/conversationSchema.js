@@ -8,6 +8,7 @@ const conversationSchema = mongoose.Schema(
       text: String,
       sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       timestamp: { type: Date, default: Date.now() },
+      seen: { type: Boolean, default: false },
     },
   },
   { timestamps: true }

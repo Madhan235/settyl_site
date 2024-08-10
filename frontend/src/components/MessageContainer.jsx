@@ -10,10 +10,13 @@ import {
 } from "@chakra-ui/react";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { selectedConversationAtom } from "../atoms/messagesAtom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  conversationsAtom,
+  selectedConversationAtom,
+} from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
 
@@ -23,23 +26,81 @@ export default function MessageContainer() {
   const [loadingMessages, setLoadingMessages] = useState(true);
 
   // Recoil States
-  const [selectedConversation, setSelectedConversation] = useRecoilState(
-    selectedConversationAtom
-  );
+  const selectedConversation = useRecoilValue(selectedConversationAtom);
   const currentUser = useRecoilValue(userAtom);
+  const setConversations = useSetRecoilState(conversationsAtom);
 
   // coustom hooks
   const showToast = useShowToast();
   const { socket } = useSocket();
 
-  //catching the newMessage event from socket server and adding it to the messages state
+  // refs
+  const messageEndRef = useRef(null);
+
+  //catching the newMessage event from socket server and adding it to the messages state and conversation state
 
   useEffect(() => {
     socket.on("newMessage", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+      if (selectedConversation._id === message.conversationId) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+      }
+
+      setConversations((prev) => {
+        const updatedConversations = prev.map((conversation) => {
+          if (conversation._id === message.conversationId) {
+            return {
+              ...conversation,
+              lastMessage: { text: message.text, sender: message.sender },
+            };
+          }
+          return conversation;
+        });
+        return updatedConversations;
+      });
     });
     return () => socket.off("newMessage");
-  }, [socket]);
+  }, [socket, selectedConversation, setConversations]);
+
+  // update the message seen when the messageContiner component did mount, when the user selecting the conversation with specific user
+
+  useEffect(() => {
+    if (!messages.length) return; // Guard clause to prevent running when there are no messages
+
+    const lastMessageIsFromOtherUser =
+      messages[messages.length - 1].sender !== currentUser._id;
+
+    if (lastMessageIsFromOtherUser) {
+      socket.emit("markMessagesAsSeen", {
+        conversationId: selectedConversation._id,
+        userId: selectedConversation.userId,
+      });
+    }
+
+    const handleMessageSeen = ({ conversationId }) => {
+      if (selectedConversation._id === conversationId) {
+        setMessages((prevMessages) => {
+          return prevMessages.map((message) =>
+            !message.seen ? { ...message, seen: true } : message
+          );
+        });
+      }
+    };
+
+    socket.on("messageSeen", handleMessageSeen);
+
+    // Cleanup function to remove the listener
+    return () => {
+      socket.off("messageSeen", handleMessageSeen);
+    };
+  }, [socket, currentUser._id, messages, selectedConversation]);
+
+  // updating the user view to latest message
+
+  useEffect(() => {
+    if (!loadingMessages) {
+      messageEndRef.current?.scrollIntoView({ behavior: "auto" });
+    }
+  }, [messages, loadingMessages]);
 
   // Fetch messages whenever the selected conversation changes
 
@@ -68,6 +129,8 @@ export default function MessageContainer() {
     };
     getMessages();
   }, [showToast, selectedConversation.userId, selectedConversation.mock]);
+
+  ///
   return (
     <Flex
       flex={70}
@@ -116,11 +179,20 @@ export default function MessageContainer() {
 
         {!loadingMessages &&
           messages.map((message) => (
-            <Message
+            <Flex
               key={message._id}
-              message={message}
-              ownMessage={currentUser._id === message.sender}
-            />
+              direction={"column"}
+              ref={
+                messages.length - 1 === messages.indexOf(message)
+                  ? messageEndRef
+                  : null
+              }
+            >
+              <Message
+                message={message}
+                ownMessage={currentUser._id === message.sender}
+              />
+            </Flex>
           ))}
       </Flex>
       <MessageInput setMessages={setMessages} />

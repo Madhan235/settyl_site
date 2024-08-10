@@ -1,6 +1,7 @@
 import {
   Avatar,
   AvatarBadge,
+  Box,
   Flex,
   Image,
   Stack,
@@ -68,7 +69,9 @@ export default function Conversation({ conversation, isOnline }) {
           whiteSpace={"nowrap"}
         >
           {currentUser?._id === lastMessage?.sender ? (
-            <BsCheck2All size={16} />
+            <Box color={lastMessage.seen ? "blue.400" : ""}>
+              <BsCheck2All size={16} />
+            </Box>
           ) : (
             ""
           )}

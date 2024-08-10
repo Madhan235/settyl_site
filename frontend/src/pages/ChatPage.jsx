@@ -42,7 +42,26 @@ export default function ChatPage() {
   const showToast = useShowToast();
   const { socket, onlineUsers } = useSocket();
 
-  // Fetch conversations on component mount
+  // catching the messagesSeen event with conversationId, and updating the converstaionsAtom form recoil
+
+  useEffect(() => {
+    socket?.on("messagesSeen", (conversationId) => {
+      setConversations((prev) => {
+        const updatedConversations = prev.map((conversation) => {
+          if (conversation._id === conversationId) {
+            return {
+              ...conversation,
+              lastMessage: { ...conversation.lastMessage, seen: true },
+            };
+          }
+          return conversation;
+        });
+        return updatedConversations;
+      });
+    });
+  }, [socket, setConversations]);
+
+  // Fetch conversations on component did mount
 
   useEffect(() => {
     const getConversations = async () => {

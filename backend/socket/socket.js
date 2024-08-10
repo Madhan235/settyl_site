@@ -1,6 +1,8 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
+import Message from "../models/messageModel.js";
+import Conversation from "../models/conversationSchema.js";
 
 // creating express server
 
@@ -40,6 +42,34 @@ io.on("connection", (socket) => {
   if (userId !== undefined) userSocketMap[userId] = socket.id;
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap)); //array of userId's
+
+  // getting the markMessagesAsSeen event and catching its object to update the conversation with the userId
+
+  socket.on("markMessagesAsSeen", async ({ conversationId, userId }) => {
+    try {
+      await Message.updateMany(
+        { conversationId: conversationId, seen: false },
+        {
+          $set: {
+            seen: true,
+          },
+        }
+      );
+
+      await Conversation.updateOne(
+        { _id: conversationId },
+        { $set: { "lastMessage.seen": true } }
+      );
+
+      //sending back the conversationId to the sepcific user that our db have been updated the messages seen event successfully,
+
+      io.to(userSocketMap[userId]).emit("messagesSeen", { conversationId });
+
+      // messagesSeenEvent
+    } catch (error) {
+      console.log("Error in markMessageAsSeenEvent", error);
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
