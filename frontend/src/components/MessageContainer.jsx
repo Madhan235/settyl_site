@@ -19,6 +19,7 @@ import {
 } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
+import messageSound from "../assets/sounds/message.mp3";
 
 export default function MessageContainer() {
   // useStates
@@ -41,8 +42,16 @@ export default function MessageContainer() {
 
   useEffect(() => {
     socket?.on("newMessage", (message) => {
-      // update messages if the new message belongs to the selectedConversation
+      if (selectedConversation._id === message.conversationId) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+      }
 
+      if (!document.hasFocus()) {
+        const sound = new Audio(messageSound);
+        sound.play();
+      }
+
+      // update messages if the new message belongs to the selectedConversation
       setConversations((prev) => {
         const updatedConversations = prev.map((conversation) => {
           if (conversation._id === message.conversationId) {
@@ -56,13 +65,8 @@ export default function MessageContainer() {
         return updatedConversations;
       });
 
-      if (selectedConversation._id === message.conversationId) {
-        setMessages((prevMessages) => [...prevMessages, message]);
-      }
+      // Clean up the socket listener when the component unmounts or `socket` changes
     });
-
-    // Clean up the socket listener when the component unmounts or `socket` changes
-
     return () => socket?.off("newMessage");
   }, [socket, selectedConversation._id, setConversations]);
 

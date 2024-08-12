@@ -18,6 +18,7 @@ export default function UserPage() {
 
   useEffect(() => {
     const getPosts = async () => {
+      if (!user) return;
       setFetchingPosts(true);
       try {
         const res = await fetch(`/api/posts/user/${username}`);
@@ -32,7 +33,7 @@ export default function UserPage() {
     };
 
     getPosts();
-  }, [username, showToast, setPosts]);
+  }, [username, showToast, setPosts, user]);
 
   if (!user && loading) {
     return (
@@ -45,7 +46,7 @@ export default function UserPage() {
   if (!user && !loading)
     return (
       <Flex justifyContent={"center"}>
-        <h1>User not Found !</h1>
+        <h1 style={{ textAlign: "center" }}>User not Found !</h1>
       </Flex>
     );
 

@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
-import { AiFillHome } from "react-icons/ai";
+import { AiFillHome, AiOutlineSetting } from "react-icons/ai";
 import { RxAvatar } from "react-icons/rx";
 import { Link as RouterLink } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
@@ -54,6 +54,9 @@ export default function Header() {
           </Link>
           <Link as={RouterLink} to={`/chat`}>
             <BsFillChatQuoteFill size={20} />
+          </Link>
+          <Link as={RouterLink} to={`/settings`}>
+            <AiOutlineSetting size={20} />
           </Link>
           <Button size={"xs"} onClick={logout}>
             <FiLogOut size={20} />

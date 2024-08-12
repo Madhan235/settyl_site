@@ -62,6 +62,7 @@ export default function Conversation({ conversation, isOnline }) {
         <Text fontWeight={"700"} display={"flex"} alignItems={"center"}>
           {user?.username} <Image src="/verified.png" w={4} h={4} ml={1} />
         </Text>
+
         <Text
           fontSize={"xs"}
           display={"flex"}
@@ -76,9 +77,13 @@ export default function Conversation({ conversation, isOnline }) {
           ) : (
             ""
           )}
-          {lastMessage?.text?.length > 18
-            ? lastMessage?.text?.substring(0, 18) + "..."
-            : lastMessage?.text || <BsFillImageFill size={16} />}
+          {lastMessage?.text?.length > 18 ? (
+            lastMessage?.text?.substring(0, 18) + "..."
+          ) : lastMessage?.text || lastMessage.image ? (
+            <BsFillImageFill size={16} />
+          ) : (
+            ""
+          )}
         </Text>
       </Stack>
     </Flex>

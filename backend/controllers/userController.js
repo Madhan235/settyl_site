@@ -51,14 +51,16 @@ export const loginUser = async (req, res, next) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
 
-    if (!user) {
+    const isPasswordCorrect = await bcryptjs.compare(password, user.password);
+
+    if (!user || !isPasswordCorrect) {
       return res.status(400).json({ error: "Invalid username or password" });
     }
 
-    const isPasswordCorrect = await bcryptjs.compare(password, user.password);
-
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ error: "Invalid username or password" });
+    // unFreeze
+    if (user.isFrozen) {
+      user.isFrozen = false;
+      await user.save();
     }
 
     generateTokenAndSetCookie(user._id, res);
@@ -223,5 +225,63 @@ export const getUserProfile = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log("Error in getUser :", error.message);
+  }
+};
+
+export const getSuggestedUser = async (req, res) => {
+  try {
+    // exclude the current user from the suggested user array , exclude users that current user is already following
+
+    const userId = req.user._id;
+
+    const usersFollowedByYou = await User.findById(userId).select("following");
+
+    // aggregating in User collection and filtering the currentUser Id , and randomly fetching 10 users
+
+    const users = await User.aggregate([
+      {
+        $match: {
+          _id: { $ne: userId },
+        },
+      },
+      {
+        $sample: { size: 10 },
+      },
+    ]);
+
+    // filtering the already followed users in the randomly aggregated users array
+
+    const filteredUsers = users.filter(
+      (user) => !usersFollowedByYou.following.includes(user._id)
+    );
+
+    // slicing the first four users
+
+    const suggestedUsers = filteredUsers.slice(0, 4);
+
+    suggestedUsers.forEach((user) => (user.password = null));
+
+    res.status(200).json(suggestedUsers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in getSuggestedUser :", error);
+  }
+};
+
+export const freezeAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    user.isFrozen = true;
+
+    await user.save();
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in  freezeAccount:", error.message);
   }
 };
