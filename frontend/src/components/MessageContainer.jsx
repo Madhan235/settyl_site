@@ -40,10 +40,8 @@ export default function MessageContainer() {
   //catching the newMessage event from socket server and adding it to the messages state and conversation state
 
   useEffect(() => {
-    socket.on("newMessage", (message) => {
-      if (selectedConversation._id === message.conversationId) {
-        setMessages((prevMessages) => [...prevMessages, message]);
-      }
+    socket?.on("newMessage", (message) => {
+      // update messages if the new message belongs to the selectedConversation
 
       setConversations((prev) => {
         const updatedConversations = prev.map((conversation) => {
@@ -57,9 +55,16 @@ export default function MessageContainer() {
         });
         return updatedConversations;
       });
+
+      if (selectedConversation._id === message.conversationId) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+      }
     });
-    return () => socket.off("newMessage");
-  }, [socket, selectedConversation, setConversations]);
+
+    // Clean up the socket listener when the component unmounts or `socket` changes
+
+    return () => socket?.off("newMessage");
+  }, [socket, selectedConversation._id, setConversations]);
 
   // update the message seen when the messageContiner component did mount, when the user selecting the conversation with specific user
 
@@ -86,7 +91,7 @@ export default function MessageContainer() {
       }
     };
 
-    socket.on("messageSeen", handleMessageSeen);
+    socket.on("messagesSeen", handleMessageSeen);
 
     // Cleanup function to remove the listener
     return () => {

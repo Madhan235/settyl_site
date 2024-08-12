@@ -1,10 +1,13 @@
 import Conversation from "../models/conversationSchema.js";
 import Message from "../models/messageModel.js";
 import { getRecipientSocketId, io } from "../socket/socket.js";
+import { v2 as cloudinary } from "cloudinary";
 
 export const sendMessage = async (req, res) => {
   try {
     const { recipientId, message } = req.body;
+    let { image } = req.body;
+
     const senderId = req.user._id;
 
     let conversation = await Conversation.findOne({
@@ -23,10 +26,17 @@ export const sendMessage = async (req, res) => {
       await conversation.save();
     }
 
+    if (image) {
+      const uploaderResponse = await cloudinary.uploader.upload(image);
+
+      image = uploaderResponse.secure_url;
+    }
+
     const newMessage = new Message({
       conversationId: conversation._id,
       sender: senderId,
       text: message,
+      image: image || "",
     });
 
     await Promise.all([
@@ -35,7 +45,6 @@ export const sendMessage = async (req, res) => {
         lastMessage: {
           text: message,
           sender: senderId,
-          timestamp: Date.now(),
         },
       }),
     ]);
@@ -89,7 +98,7 @@ export const getConversations = async (req, res) => {
         path: "participants",
         select: "username profilePic",
       })
-      .sort({ "lastMessage.timestamp": -1 });
+      .sort({ "lastMessage.CreatedAt": -1 });
 
     // remove the current user from the participants array
     conversations.forEach((conversation) => {

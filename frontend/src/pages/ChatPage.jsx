@@ -28,6 +28,7 @@ export default function ChatPage() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [searchingUser, setSearchingUser] = useState(false);
+  const [refreshConversation, setRefreshConversation] = useState(false);
 
   // recoil states
 
@@ -41,6 +42,29 @@ export default function ChatPage() {
 
   const showToast = useShowToast();
   const { socket, onlineUsers } = useSocket();
+
+  //catching the newMessage event from socket server and adding it to the messages state and conversation state
+
+  useEffect(() => {
+    socket?.on("newMessage", (message) => {
+      setConversations((prev) => {
+        const updatedConversations = prev.map((conversation) => {
+          if (conversation._id === message.conversationId) {
+            return {
+              ...conversation,
+              lastMessage: { text: message.text, sender: message.sender },
+            };
+          }
+          return conversation;
+        });
+
+        return updatedConversations;
+      });
+      setRefreshConversation(true);
+    });
+
+    return () => socket?.off("newMessage");
+  }, [socket, selectedConversation._id, setConversations]);
 
   // catching the messagesSeen event with conversationId, and updating the converstaionsAtom form recoil
 
@@ -77,10 +101,11 @@ export default function ChatPage() {
         showToast("Error", error.message, "error");
       } finally {
         setLoadingConversations(false);
+        setRefreshConversation(false); // Reset the refresh state
       }
     };
     getConversations();
-  }, [setConversations, showToast]);
+  }, [setConversations, showToast, refreshConversation]);
 
   // Handle user search
 

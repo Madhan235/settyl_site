@@ -76,8 +76,10 @@ io.on("connection", (socket) => {
 
     // updating userSocketMap when user offline
 
-    delete userSocketMap[userId];
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    if (userId !== undefined) {
+      delete userSocketMap[userId];
+      io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    }
   });
 });
 
