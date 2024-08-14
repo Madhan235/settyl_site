@@ -78,6 +78,62 @@ export const loginUser = async (req, res, next) => {
   }
 };
 
+export const OauthUser = async (req, res) => {
+  try {
+    const { name, username, email, profilePic } = req.body;
+
+    const user = await User.findOne({ $or: [{ email }, { username }] });
+
+    if (user) {
+      const { password: pass, ...rest } = user._doc;
+      // unFreeze
+      if (user.isFrozen) {
+        user.isFrozen = false;
+        await user.save();
+      }
+      generateTokenAndSetCookie(user._id, res);
+      res.status(200).json(rest);
+    } else {
+      //generating password
+
+      const generatePassword =
+        Math.random().toString(36).slice(-8) +
+        "-" +
+        Math.random().toString(36).slice(-8);
+
+      const hashedPassword = bcryptjs.hashSync(generatePassword, 10);
+
+      //unique username
+
+      const newUser = new User({
+        username:
+          username.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-3),
+        name,
+        email,
+        password: hashedPassword,
+        profilePic,
+      });
+      await newUser.save();
+
+      //generating token
+
+      if (newUser) {
+        generateTokenAndSetCookie(newUser._id, res);
+      }
+
+      // destructing password
+
+      const { password: pass, ...rest } = newUser._doc;
+
+      res.status(200).json(rest);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in OauthUser : ", error.message);
+  }
+};
+
 export const logoutUser = async (req, res, next) => {
   try {
     res.cookie("jwt", "", { maxAge: 1 });

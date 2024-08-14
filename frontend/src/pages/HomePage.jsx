@@ -34,6 +34,7 @@ export default function HomePage() {
 
     getFeedPosts();
   }, [showToast, setPosts]);
+
   return (
     <Flex gap={10} alignItems={"flex-start"}>
       <Box flex={70}>
