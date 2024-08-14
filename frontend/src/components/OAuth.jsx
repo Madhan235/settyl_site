@@ -5,6 +5,7 @@ export default function OAuth() {
   const showToast = useShowToast();
   const handleGoogleClick = async () => {
     try {
+      ("");
     } catch (error) {
       showToast("Error", error.message, "error");
     }
