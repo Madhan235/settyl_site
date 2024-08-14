@@ -14,7 +14,11 @@ import userAtom from "../atoms/userAtom";
 import { BsCheck2All, BsFillImageFill } from "react-icons/bs";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 
-export default function Conversation({ conversation, isOnline }) {
+export default function Conversation({
+  conversation,
+  isOnline,
+  setIsMessageContainerOpen,
+}) {
   const user = conversation?.participants?.[0];
   const currentUser = useRecoilValue(userAtom);
   const lastMessage = conversation.lastMessage;
@@ -33,6 +37,7 @@ export default function Conversation({ conversation, isOnline }) {
         color: "white",
       }}
       onClick={() => {
+        setIsMessageContainerOpen(true);
         setSelectedConversation({
           _id: conversation._id,
           userId: user._id,
@@ -77,13 +82,14 @@ export default function Conversation({ conversation, isOnline }) {
           ) : (
             ""
           )}
-          {lastMessage?.text?.length > 18 ? (
-            lastMessage?.text?.substring(0, 18) + "..."
-          ) : lastMessage?.text || lastMessage.image ? (
-            <BsFillImageFill size={16} />
-          ) : (
-            ""
-          )}
+
+          {/* last message text or icon  */}
+
+          {lastMessage?.text?.length > 18
+            ? lastMessage?.text?.substring(0, 18) + "..."
+            : lastMessage?.text}
+
+          {lastMessage.image ? <BsFillImageFill size={16} /> : ""}
         </Text>
       </Stack>
     </Flex>

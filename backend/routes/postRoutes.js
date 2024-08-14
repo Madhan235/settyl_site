@@ -2,6 +2,8 @@ import express from "express";
 import {
   createPost,
   deletePost,
+  deletePostReply,
+  editPostReply,
   getFeedPosts,
   getPost,
   getUserPosts,
@@ -19,5 +21,7 @@ router.post("/create", protectRoute, createPost);
 router.delete("/:id", protectRoute, deletePost);
 router.put("/like/:id", protectRoute, likePost);
 router.put("/reply/:id", protectRoute, replyToPost);
+router.delete("/:postId/:replyId", protectRoute, deletePostReply);
+router.put("/:postId/:replyId", protectRoute, editPostReply);
 
 export default router;

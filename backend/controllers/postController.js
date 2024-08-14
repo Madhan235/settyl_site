@@ -196,3 +196,64 @@ export const getUserPosts = async (req, res) => {
     console.log("Error in getUserPosts :", error.message);
   }
 };
+
+export const deletePostReply = async (req, res) => {
+  try {
+    const { postId, replyId } = req.params;
+
+    // Find the post by ID
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Remove the reply from the replies array
+    post.replies = post.replies.filter(
+      (reply) => reply._id.toString() !== replyId
+    );
+
+    // Save the updated post
+    await post.save();
+
+    res.status(200).json("Reply deleted successfully");
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in deletePostReply :", error.message);
+  }
+};
+
+export const editPostReply = async (req, res) => {
+  try {
+    const { postId, replyId } = req.params;
+
+    const { updateReply } = req.body;
+
+    // Find the post by ID
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Find and update the specific reply's text
+    const replyIndex = post.replies.findIndex(
+      (reply) => reply._id.toString() === replyId
+    );
+
+    if (replyIndex === -1) {
+      return res.status(404).json({ error: "Reply not found" });
+    }
+
+    post.replies[replyIndex].text = updateReply;
+    if (!post.replies[replyIndex].isEdited) {
+      post.replies[replyIndex].isEdited = true;
+    }
+
+    await post.save();
+    res.status(200).json("Comment updated successfully");
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in editPostReply :", error.message);
+  }
+};

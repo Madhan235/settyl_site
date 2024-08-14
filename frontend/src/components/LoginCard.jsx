@@ -19,6 +19,7 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import OAuth from "./OAuth";
 
 export default function LoginCard() {
   const [showPassword, setShowPassword] = useState(false);
@@ -129,17 +130,7 @@ export default function LoginCard() {
               >
                 Login
               </Button>
-              <Button
-                loadingText="Submitting"
-                size="lg"
-                bg={"#DB4437"}
-                color={"white"}
-                _hover={{
-                  bg: "#C33C2C",
-                }}
-              >
-                Google
-              </Button>
+              <OAuth />
             </Stack>
             <Stack pt={6}>
               <Text align={"center"}>

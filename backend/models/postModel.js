@@ -36,6 +36,10 @@ const postSchema = new mongoose.Schema(
         username: {
           type: String,
         },
+        isEdited: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
   },

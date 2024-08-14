@@ -31,7 +31,7 @@ export default function PostPage() {
 
   const { pid } = useParams();
   const navigate = useNavigate();
-  const currentPost = posts[0];
+  let currentPost = posts[0];
 
   useEffect(() => {
     const getPost = async () => {
@@ -73,6 +73,34 @@ export default function PostPage() {
     } catch (error) {
       showToast("Error", error.message, "error");
     }
+  };
+
+  const handleCommentDeletion = (replyId) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === currentPost._id
+          ? {
+              ...post,
+              replies: post.replies.filter((reply) => reply._id !== replyId),
+            }
+          : post
+      )
+    );
+  };
+
+  const handleCommentEdit = (replyId, newComment) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === currentPost._id
+          ? {
+              ...post,
+              replies: post.replies.map((reply) =>
+                reply._id === replyId ? { ...reply, text: newComment } : reply
+              ),
+            }
+          : post
+      )
+    );
   };
 
   if (!user && loading) {
@@ -144,11 +172,14 @@ export default function PostPage() {
       <Divider my={4} />
       {currentPost.replies.map((reply) => (
         <Comment
-          key={reply._id}
+          key={reply?._id}
+          currentPost={currentPost}
+          handleCommentDeletion={handleCommentDeletion}
+          handleCommentEdit={handleCommentEdit}
           reply={reply}
           lastReply={
-            reply._id ===
-            currentPost.replies[currentPost.replies.length - 1]._id
+            reply?._id ===
+            currentPost.replies[currentPost.replies.length - 1]?._id
           }
         />
       ))}

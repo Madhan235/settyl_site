@@ -29,6 +29,7 @@ export default function ChatPage() {
   const [searchText, setSearchText] = useState("");
   const [searchingUser, setSearchingUser] = useState(false);
   const [refreshConversation, setRefreshConversation] = useState(false);
+  const [isMessageContainerOpen, setIsMessageContainerOpen] = useState(true);
 
   // recoil states
 
@@ -253,6 +254,7 @@ export default function ChatPage() {
                 isOnline={onlineUsers.includes(
                   conversation.participants[0]._id
                 )}
+                setIsMessageContainerOpen={setIsMessageContainerOpen}
                 conversation={conversation}
               />
             ))}
@@ -272,7 +274,11 @@ export default function ChatPage() {
           </Flex>
         )}
 
-        {selectedConversation?._id && <MessageContainer />}
+        {selectedConversation?._id && isMessageContainerOpen && (
+          <MessageContainer
+            setIsMessageContainerOpen={setIsMessageContainerOpen}
+          />
+        )}
       </Flex>
     </Box>
   );
