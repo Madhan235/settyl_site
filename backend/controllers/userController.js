@@ -354,7 +354,6 @@ export const handleNotification = async (req, res) => {
     // Toggle the notification status
     user.notification = !user.notification;
     await user.save();
-    console.log("357", user.notification);
 
     res.status(200).json({ message: "Notification updated successfully" });
   } catch (error) {

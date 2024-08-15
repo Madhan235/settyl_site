@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path";
+
 import dotenv from "dotenv";
 import connectDB from "./db/connectDB.js";
 import cookieParser from "cookie-parser";
@@ -14,6 +16,7 @@ dotenv.config();
 connectDB();
 
 const PORT = process.env.PORT || 5000;
+const __dirname = path.resolve();
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -32,6 +35,14 @@ app.use("/api/posts", postRoutes);
 app.use("/api/messages", messageRoutes);
 
 // change app.listen to server.listen for listening real time events aswell
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 
 server.listen(PORT, () =>
   console.log(`server started at http://localhost:PORT`)
