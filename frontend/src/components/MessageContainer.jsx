@@ -173,8 +173,6 @@ export default function MessageContainer({ setIsMessageContainerOpen }) {
 
       // Update showNotification state
       setShowNotification((prevShowNotification) => !prevShowNotification);
-
-      showToast("Success", "Notification updated successfully", "success");
     } catch (error) {
       showToast("Error", error.message, "error");
     }
