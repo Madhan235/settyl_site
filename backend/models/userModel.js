@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    notification: {
+      type: Boolean,
+      default: true,
+    },
     isFrozen: {
       type: Boolean,
       default: false,

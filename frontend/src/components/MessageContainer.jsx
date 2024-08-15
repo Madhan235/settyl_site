@@ -1,6 +1,5 @@
 import {
   Avatar,
-  Button,
   Divider,
   Flex,
   Image,
@@ -22,6 +21,9 @@ import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
 import messageSound from "../assets/sounds/message.mp3";
 import { IoCloseCircleOutline } from "react-icons/io5";
+import { BsFillVolumeMuteFill } from "react-icons/bs";
+import { BsFillVolumeUpFill } from "react-icons/bs";
+//
 
 export default function MessageContainer({ setIsMessageContainerOpen }) {
   // useStates
@@ -31,6 +33,7 @@ export default function MessageContainer({ setIsMessageContainerOpen }) {
   // Recoil States
   const selectedConversation = useRecoilValue(selectedConversationAtom);
   const currentUser = useRecoilValue(userAtom);
+
   const setConversations = useSetRecoilState(conversationsAtom);
 
   // coustom hooks
@@ -40,6 +43,13 @@ export default function MessageContainer({ setIsMessageContainerOpen }) {
   // refs
   const messageEndRef = useRef(null);
 
+  const userThreads = JSON.parse(localStorage.getItem("user-threads"));
+
+  //notification state
+  const [showNotification, setShowNotification] = useState(
+    userThreads?.notification
+  );
+
   //catching the newMessage event from socket server and adding it to the messages state and conversation state
 
   useEffect(() => {
@@ -48,7 +58,7 @@ export default function MessageContainer({ setIsMessageContainerOpen }) {
         setMessages((prevMessages) => [...prevMessages, message]);
       }
 
-      if (!document.hasFocus()) {
+      if (!document.hasFocus() && userThreads?.notification) {
         const sound = new Audio(messageSound);
         sound.play();
       }
@@ -70,7 +80,7 @@ export default function MessageContainer({ setIsMessageContainerOpen }) {
       // Clean up the socket listener when the component unmounts or `socket` changes
     });
     return () => socket?.off("newMessage");
-  }, [socket, selectedConversation._id, setConversations]);
+  }, [socket, selectedConversation._id, setConversations, userThreads]);
 
   // update the message seen when the messageContiner component did mount, when the user selecting the conversation with specific user
 
@@ -141,7 +151,37 @@ export default function MessageContainer({ setIsMessageContainerOpen }) {
     getMessages();
   }, [showToast, selectedConversation.userId, selectedConversation.mock]);
 
+  const handleNotificationSound = async () => {
+    try {
+      const res = await fetch(`/api/users/notification`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+
+      userThreads.notification = !userThreads.notification;
+
+      localStorage.setItem("user-threads", JSON.stringify(userThreads));
+
+      // Update showNotification state
+      setShowNotification((prevShowNotification) => !prevShowNotification);
+
+      showToast("Success", "Notification updated successfully", "success");
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    }
+  };
+
   ///
+
   return (
     <>
       <Flex
@@ -163,6 +203,19 @@ export default function MessageContainer({ setIsMessageContainerOpen }) {
 
           <Flex alignItems="center" gap={3} p={1}>
             {/* chat close icon  */}
+            {showNotification ? (
+              <BsFillVolumeUpFill
+                size={22}
+                cursor={"pointer"}
+                onClick={handleNotificationSound}
+              />
+            ) : (
+              <BsFillVolumeMuteFill
+                size={22}
+                cursor={"pointer"}
+                onClick={handleNotificationSound}
+              />
+            )}
 
             <IoCloseCircleOutline
               size={23}

@@ -341,3 +341,24 @@ export const freezeAccount = async (req, res) => {
     console.log("Error in  freezeAccount:", error.message);
   }
 };
+
+export const handleNotification = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    console.log(user.notification);
+    // Toggle the notification status
+    user.notification = !user.notification;
+    await user.save();
+    console.log("357", user.notification);
+
+    res.status(200).json({ message: "Notification updated successfully" });
+  } catch (error) {
+    console.log("Error in handleNotification:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
