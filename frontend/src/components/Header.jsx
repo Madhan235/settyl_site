@@ -69,13 +69,16 @@ export default function Header() {
             <Flex
               position="absolute"
               top="100%"
-              left={0} // Ensure the dropdown aligns correctly with the parent container
+              left={0}
               flexDirection="column"
+              transform={"translateX(-50%)"}
               bg={colorMode === "dark" ? "gray.800" : "white"}
               color={colorMode === "dark" ? "whiteAlpha.900" : "black"}
               zIndex={1000}
               p={4}
-              w={"230px"}
+              w={{ base: "50%", sm: "230px" }}
+              display={{ base: "block", md: "none" }}
+              borderRadius={"5%"}
             >
               <Flex justify="flex-end">
                 <IconButton
