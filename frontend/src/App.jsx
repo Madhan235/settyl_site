@@ -12,7 +12,6 @@ import UpdateProfilePage from "./pages/UpdateProfilePage";
 import CreatePost from "./components/CreatePost";
 import ChatPage from "./pages/ChatPage";
 import SettingsPage from "./pages/SettingsPage";
-import Footer from "./components/Footer";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -63,7 +62,6 @@ function App() {
           </Routes>
         </Container>
       </Box>
-      <Footer />
     </Flex>
   );
 }
