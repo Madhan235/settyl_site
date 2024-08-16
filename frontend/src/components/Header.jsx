@@ -69,16 +69,16 @@ export default function Header() {
             <Flex
               position="absolute"
               top="100%"
-              left={0}
-              flexDirection="column"
-              transform={"translateX(-50%)"}
+              left={"20%"}
+              transform="translateX(-50%)"
               bg={colorMode === "dark" ? "gray.800" : "white"}
               color={colorMode === "dark" ? "whiteAlpha.900" : "black"}
               zIndex={1000}
               p={4}
-              w={{ base: "50%", sm: "230px" }}
-              display={{ base: "block", md: "none" }}
-              borderRadius={"5%"}
+              minW={{ base: "90%", sm: "230px" }} // Adjust the width based on screen size
+              maxW="400px" // Set a maximum width to prevent it from growing too large
+              borderRadius="lg" // Smoother border radius for better visuals
+              display="block"
             >
               <Flex justify="flex-end">
                 <IconButton
@@ -89,6 +89,7 @@ export default function Header() {
                   aria-label="Close"
                 />
               </Flex>
+
               <SuggestedUsers />
             </Flex>
           )}
