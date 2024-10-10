@@ -8,6 +8,8 @@ export default function SuggestedUsers() {
   const [suggestedUsers, setSuggestedUsers] = useState([]);
 
   const showToast = useShowToast();
+  // Log all cookies in the browser
+  console.log(document.cookie);
 
   // fetching suggestUsers
 
