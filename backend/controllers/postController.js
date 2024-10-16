@@ -1,7 +1,10 @@
 import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
 import { v2 as cloudinary } from "cloudinary";
+import { sendLikeNotificationEmail } from "../mailer.js";
+import { truncateText } from "../utils/helpers/truncate.js";
 
+//
 export const createPost = async (req, res, next) => {
   try {
     const { postedBy, text } = req.body;
@@ -87,6 +90,9 @@ export const likePost = async (req, res, next) => {
     const userId = req.user._id;
 
     const post = await Post.findById(postId);
+    const postCreater = await User.findById(post.postedBy);
+
+    const postlikedBy = await User.findById(userId);
 
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
@@ -106,6 +112,18 @@ export const likePost = async (req, res, next) => {
       res.status(200).json({ message: "Post unliked successfully" });
     } else {
       post.likes.push(userId);
+
+      // postOwnerEmail, likedByUsername, postTitle, action;
+      if (post.text.length > 15) {
+        post.text = truncateText(post.text, 15);
+      }
+
+      sendLikeNotificationEmail(
+        postCreater.email,
+        postlikedBy.username,
+        post.text,
+        "Liked"
+      );
 
       await post.save();
 
@@ -144,7 +162,20 @@ export const replyToPost = async (req, res, next) => {
 
     const reply = { userId, text, userPorfilePic, username };
 
+    const postCreater = await User.findById(post.postedBy);
+
     post.replies.push(reply);
+
+    if (post.text.length > 15) {
+      post.text = truncateText(post.text, 15);
+    }
+
+    sendLikeNotificationEmail(
+      postCreater.email,
+      username,
+      post.text,
+      "Commented"
+    );
     await post.save();
 
     res.status(200).json(reply);

@@ -12,6 +12,7 @@ import UpdateProfilePage from "./pages/UpdateProfilePage";
 import CreatePost from "./components/CreatePost";
 import ChatPage from "./pages/ChatPage";
 import SettingsPage from "./pages/SettingsPage";
+import Footer from "./components/Footer";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -21,7 +22,11 @@ function App() {
     <Flex direction="column" minH="100vh">
       <Box flex="1">
         <Container
-          maxW={pathname === "/" ? { base: "620px", md: "900px" } : "620px"}
+          maxW={
+            pathname === "/"
+              ? { base: "600px", sm: "1000px", md: "1200px" }
+              : "1000px"
+          }
         >
           <Header />
           <Routes>
@@ -69,6 +74,7 @@ function App() {
               element={user ? <SettingsPage /> : <Navigate to={"/auth"} />}
             />
           </Routes>
+          {pathname !== "/chat" && <Footer />}
         </Container>
       </Box>
     </Flex>

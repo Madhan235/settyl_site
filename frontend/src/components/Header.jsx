@@ -10,7 +10,8 @@ import {
 } from "@chakra-ui/react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
-import { AiFillHome, AiOutlineSetting } from "react-icons/ai";
+import { AiFillHome } from "react-icons/ai";
+import { HiMiniBellSnooze } from "react-icons/hi2";
 import { FaUserFriends } from "react-icons/fa";
 import { Link as RouterLink } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
@@ -25,32 +26,40 @@ export default function Header() {
   const { colorMode, toggleColorMode } = useColorMode();
   const user = useRecoilValue(userAtom);
   const logout = useLogOut();
-  const setAuthScreen = useSetRecoilState(authScreenAtom); // Corrected typo
+  const setAuthScreen = useSetRecoilState(authScreenAtom);
   const [showFriends, setShowFriends] = useState(false);
 
   return (
-    <Flex justifyContent={"space-between"} mt={6} mb={12}>
+    <Flex
+      justifyContent={"space-between"}
+      mt={1}
+      mb={8}
+      p={3}
+      bg="rgb(32, 32, 148)"
+    >
+      <Image
+        cursor={"pointer"}
+        alt="logo"
+        src="https://settyl.com/wp-content/uploads/2022/04/settyl.logo_.svg"
+        className="flex justify-center items-center"
+      />
       {user && (
-        <Link as={RouterLink} to={"/"}>
-          <AiFillHome size={24} />
-        </Link>
+        <Box display="flex" justifyContent="center">
+          <Link as={RouterLink} to="/">
+            <AiFillHome size={24} color="white" style={{ marginTop: "7px" }} />
+          </Link>
+        </Box>
       )}
       {!user && (
         <Link
           as={RouterLink}
           to={"/auth"}
-          onClick={() => setAuthScreen("login")} // Corrected typo
+          color={"white"}
+          onClick={() => setAuthScreen("login")}
         >
           Login
         </Link>
       )}
-      <Image
-        cursor={"pointer"}
-        alt="logo"
-        w={6}
-        src={colorMode === "dark" ? "/light-logo.svg" : "/dark-logo.svg"}
-        onClick={toggleColorMode}
-      />
       {user && (
         <Flex alignItems={"center"} gap={4} position="relative">
           {" "}
@@ -61,6 +70,7 @@ export default function Header() {
           <Box display={{ base: "block", md: "none" }}>
             <FaUserFriends
               size={24}
+              color="white"
               cursor={"pointer"}
               onClick={() => setShowFriends(true)}
             />
@@ -94,10 +104,10 @@ export default function Header() {
             </Flex>
           )}
           <Link as={RouterLink} to={`/chat`}>
-            <BsFillChatQuoteFill size={20} />
+            <BsFillChatQuoteFill size={20} color="white" />
           </Link>
           <Link as={RouterLink} to={`/settings`}>
-            <AiOutlineSetting size={20} />
+            <HiMiniBellSnooze size={20} color="white" />
           </Link>
           <Button size={"xs"} onClick={logout}>
             <FiLogOut size={20} />
@@ -109,7 +119,8 @@ export default function Header() {
         <Link
           as={RouterLink}
           to={"/auth"}
-          onClick={() => setAuthScreen("signup")} // Corrected typo
+          onClick={() => setAuthScreen("signup")}
+          color={"white"}
         >
           Sign up
         </Link>

@@ -4,6 +4,7 @@ import bcryptjs from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
+import { sendLikeNotificationEmail } from "../mailer.js";
 
 export const signupUser = async (req, res, next) => {
   try {
@@ -188,6 +189,15 @@ export const followUnFollowUser = async (req, res, next) => {
           following: id,
         },
       });
+
+      // postOwnerEmail, likedByUsername, postTitle, action;
+      sendLikeNotificationEmail(
+        userToModify.email,
+        currentUser.username,
+        "",
+        "Following You"
+      );
+
       res
         .status(200)
         .json({ message: `${userToModify.username} followed successfully` });

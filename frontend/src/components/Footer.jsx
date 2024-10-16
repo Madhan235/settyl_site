@@ -1,58 +1,64 @@
+import { Box, Container, Image, Link, Text, Stack } from "@chakra-ui/react";
 import {
-  Box,
-  Text,
-  Link,
-  Stack,
-  IconButton,
-  useColorMode,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import { FaTwitter, FaInstagram, FaGithub } from "react-icons/fa";
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedinIn,
+} from "react-icons/fa";
 
-const Footer = () => {
-  const { colorMode } = useColorMode();
-  const bgColor = useColorModeValue("gray.300", "gray.900");
-  const textColor = useColorModeValue("gray.600", "gray.400");
-
+export default function Footer() {
   return (
-    <Box bg={bgColor} color={textColor} py={4}>
-      <Stack
-        direction={{ base: "column", md: "row" }}
-        spacing={4}
-        justify="space-between"
-        align="center"
-      >
-        <Text>© {new Date().getFullYear()} Threads. All rights reserved.</Text>
+    <Box bg="rgb(32, 32, 148)" color="white" py={8}>
+      <Container maxW="container.xl" textAlign="center">
+        {/* Logo Section */}
+        <Box mb={4}>
+          <Link href="#">
+            <Image
+              src="https://settyl.com/wp-content/uploads/2022/04/settyl.logo_.svg"
+              alt="Settyl Logo"
+              boxSize="80px" // Increase the size here
+              mx="auto"
+            />
+          </Link>
+        </Box>
 
-        <Stack direction="row" spacing={6}>
-          <Link href="https://twitter.com" isExternal>
-            <IconButton
-              aria-label="Twitter"
-              icon={<FaTwitter />}
-              colorScheme="twitter"
-              variant="ghost"
-            />
+        {/* Social Media Icons */}
+        <Stack direction="row" spacing={6} mb={4} justify="center">
+          <Link href="#" color="white" _hover={{ color: "gray.300" }}>
+            <FaFacebookF size={24} />
           </Link>
-          <Link href="https://instagram.com" isExternal>
-            <IconButton
-              aria-label="Instagram"
-              icon={<FaInstagram />}
-              colorScheme="red"
-              variant="ghost"
-            />
+          <Link href="#" color="white" _hover={{ color: "gray.300" }}>
+            <FaTwitter size={24} />
           </Link>
-          <Link href="https://github.com" isExternal>
-            <IconButton
-              aria-label="GitHub"
-              icon={<FaGithub />}
-              colorScheme={colorMode === "light" ? "gray" : "orange"}
-              variant="ghost"
-            />
+          <Link href="#" color="white" _hover={{ color: "gray.300" }}>
+            <FaInstagram size={24} />
+          </Link>
+          <Link href="#" color="white" _hover={{ color: "gray.300" }}>
+            <FaLinkedinIn size={24} />
           </Link>
         </Stack>
-      </Stack>
+
+        {/* Footer Links */}
+        <Stack direction="row" spacing={2} mb={4} justify="center">
+          <Link href="#" color="white" _hover={{ textDecoration: "underline" }}>
+            Home
+          </Link>
+          <Link href="#" color="white" _hover={{ textDecoration: "underline" }}>
+            About
+          </Link>
+          <Link href="#" color="white" _hover={{ textDecoration: "underline" }}>
+            Services
+          </Link>
+          <Link href="#" color="white" _hover={{ textDecoration: "underline" }}>
+            Contact
+          </Link>
+        </Stack>
+
+        {/* Copyright Section */}
+        <Text fontSize="sm" color="gray.300">
+          © 2024 Settyl. All rights reserved.
+        </Text>
+      </Container>
     </Box>
   );
-};
-
-export default Footer;
+}
